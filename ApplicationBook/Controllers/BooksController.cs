@@ -1,7 +1,9 @@
-﻿using ApplicationBook.Service;
+﻿using ApplicationBook.DTO;
+using ApplicationBook.Service;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace ApplicationBook.Controllers
 {
@@ -23,8 +25,16 @@ namespace ApplicationBook.Controllers
         {
             try
             {
+                List<BooksDTO> books = new List<BooksDTO>();
+
                 var result = await _elmTestDbService.GetElmTestDbsAsync(pageNumber);
-                return Ok(result);
+                foreach (var item in result)
+                {
+                    BooksDTO dTO = JsonSerializer.Deserialize<BooksDTO>(item.BookInfo);
+                    dTO.BookId = item.BookId;
+                    books.Add(dTO);
+                }
+                return Ok(books);
             }
             catch (Exception ex)
             {
